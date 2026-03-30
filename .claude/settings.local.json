@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Read(//c/Users/andre/OneDrive/Documentos/Development/**)",
+      "Bash(npx create-next-app@latest family-control --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(printf \"No\\\\nNo\\\\n\")",
+      "Bash(npx create-next-app@latest family-control --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --no-react-compiler --no-agents-md)",
+      "Bash(cp -r /c/Users/andre/OneDrive/Documentos/Development/family-control/. /c/Users/andre/OneDrive/Documentos/Development/FamilyControl/)",
+      "Bash(rm -rf /c/Users/andre/OneDrive/Documentos/Development/family-control)",
+      "Bash(npx shadcn@latest init --yes --defaults)"
+    ]
+  }
+}
