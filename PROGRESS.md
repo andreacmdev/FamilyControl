@@ -32,14 +32,21 @@
 
 ## Etapa 3 — Módulo Agenda
 
-- [ ] Calendário mensal visual
-- [ ] Lista de próximos eventos
+### 3a — Visualização ✅
+- [x] Calendário mensal visual com pontinhos nos dias com evento
+- [x] Eventos do dia ao clicar no calendário
+- [x] Lista de próximos eventos (a partir de hoje)
+- [x] Cores por categoria
+- [x] Integração com Supabase (leitura)
+
+### 3b — Cadastro / edição
 - [ ] Modal de cadastro de evento
 - [ ] Edição de evento
 - [ ] Exclusão de evento
+
+### 3c — Filtros
 - [ ] Filtro por categoria
 - [ ] Filtro por responsável
-- [ ] Integração completa com Supabase
 
 ---
 

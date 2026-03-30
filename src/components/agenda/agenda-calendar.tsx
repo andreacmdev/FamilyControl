@@ -1,0 +1,126 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAgendaEvents } from "@/hooks/use-agenda-events";
+import {
+  CATEGORY_CONFIG,
+  formatEventTime,
+  isToday,
+} from "@/lib/agenda";
+import type { AgendaEvent } from "@/types/database";
+import type { DayButtonProps } from "react-day-picker";
+import { ptBR } from "date-fns/locale";
+import { Clock } from "lucide-react";
+
+export function AgendaCalendar() {
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+
+  const { events, loading } = useAgendaEvents({ month: currentMonth });
+
+  /** Conjunto de dias que têm eventos (formato "YYYY-MM-DD") */
+  const eventDays = useMemo(() => {
+    return new Set(events.map((e) => e.event_date));
+  }, [events]);
+
+  /** Eventos do dia selecionado */
+  const selectedDateStr = selectedDate
+    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
+    : null;
+
+  const selectedEvents = useMemo(() => {
+    if (!selectedDateStr) return [];
+    return events.filter((e) => e.event_date === selectedDateStr);
+  }, [events, selectedDateStr]);
+
+  return (
+    <div className="space-y-4">
+      {/* Calendário */}
+      <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={setSelectedDate}
+          month={currentMonth}
+          onMonthChange={setCurrentMonth}
+          locale={ptBR}
+          classNames={{
+            day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full",
+            day_today: "font-semibold text-primary",
+          }}
+          components={{
+            DayButton: ({ day, modifiers, ...props }: DayButtonProps) => {
+              const str = `${day.date.getFullYear()}-${String(day.date.getMonth() + 1).padStart(2, "0")}-${String(day.date.getDate()).padStart(2, "0")}`;
+              const hasEvents = eventDays.has(str);
+              return (
+                <button {...props}>
+                  <span>{day.date.getDate()}</span>
+                  {hasEvents && (
+                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                  )}
+                </button>
+              );
+            },
+          }}
+        />
+      </div>
+
+      {/* Eventos do dia selecionado */}
+      {selectedDate && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1">
+            {selectedDateStr && isToday(selectedDateStr)
+              ? "Hoje"
+              : selectedDate.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
+          </p>
+
+          {loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-16 w-full rounded-xl" />
+              <Skeleton className="h-16 w-full rounded-xl" />
+            </div>
+          ) : selectedEvents.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Nenhum evento neste dia.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {selectedEvents.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EventCard({ event }: { event: AgendaEvent }) {
+  const cat = CATEGORY_CONFIG[event.category];
+  const time = formatEventTime(event.event_time);
+
+  return (
+    <div className="rounded-xl border border-border/60 bg-card p-3 space-y-1.5 hover:shadow-sm transition-shadow">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-medium text-foreground leading-snug">{event.title}</p>
+        <Badge className={`text-xs shrink-0 ${cat.color} border-0`}>
+          {cat.label}
+        </Badge>
+      </div>
+      {time && (
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Clock className="w-3 h-3" />
+          {time}
+        </div>
+      )}
+      {event.description && (
+        <p className="text-xs text-muted-foreground line-clamp-2">{event.description}</p>
+      )}
+    </div>
+  );
+}
+
