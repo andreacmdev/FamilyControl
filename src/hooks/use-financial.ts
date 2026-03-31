@@ -8,7 +8,6 @@ interface UseMonthlyEntriesReturn {
   entries: FinancialEntry[];
   loading: boolean;
   error: string | null;
-  refetch: () => void;
 }
 
 export function useMonthlyEntries(
@@ -20,50 +19,80 @@ export function useMonthlyEntries(
   const [error, setError] = useState<string | null>(null);
   const initialLoad = useRef(true);
 
+  const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
+  const lastDay  = `${year}-${String(month).padStart(2, "0")}-${String(new Date(year, month, 0).getDate()).padStart(2, "0")}`;
+
   const fetchEntries = useCallback(async () => {
-    if (initialLoad.current) setLoading(true);
     setError(null);
-
     const supabase = createClient();
-    const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
-    const lastDayDate = new Date(year, month, 0);
-    const lastDay = `${year}-${String(month).padStart(2, "0")}-${String(lastDayDate.getDate()).padStart(2, "0")}`;
-
     const { data, error: err } = await supabase
       .from("financial_entries")
       .select("*")
-      .or(`due_date.gte.${firstDay},due_date.is.null`)
-      .or(`due_date.lte.${lastDay},due_date.is.null`)
-      .order("due_date", { ascending: true, nullsFirst: false });
+      .gte("due_date", firstDay)
+      .lte("due_date", lastDay)
+      .order("due_date", { ascending: true });
 
     if (err) {
       setError(err.message);
     } else {
-      // Filtra apenas lançamentos do mês (due_date dentro do mês ou null)
-      const filtered = (data ?? []).filter((e: FinancialEntry) => {
-        if (!e.due_date) return false;
-        return e.due_date >= firstDay && e.due_date <= lastDay;
-      });
-      setEntries(filtered);
+      setEntries(data ?? []);
     }
-
     setLoading(false);
     initialLoad.current = false;
-  }, [year, month]);
+  }, [firstDay, lastDay]);
 
-  useEffect(() => { fetchEntries(); }, [fetchEntries]);
+  // Fetch inicial + ao mudar mês
+  useEffect(() => {
+    initialLoad.current = true;
+    setLoading(true);
+    fetchEntries();
+  }, [fetchEntries]);
 
-  // Realtime
+  // Realtime: aplica o delta diretamente no estado, sem refetch
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
       .channel(`financial_entries_${year}_${month}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "financial_entries" }, fetchEntries)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "financial_entries" },
+        ({ new: row }) => {
+          const entry = row as FinancialEntry;
+          if (entry.due_date && entry.due_date >= firstDay && entry.due_date <= lastDay) {
+            setEntries((prev) =>
+              [...prev, entry].sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""))
+            );
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "financial_entries" },
+        ({ new: row }) => {
+          const entry = row as FinancialEntry;
+          // Se saiu do mês, remove; senão, atualiza
+          if (!entry.due_date || entry.due_date < firstDay || entry.due_date > lastDay) {
+            setEntries((prev) => prev.filter((e) => e.id !== entry.id));
+          } else {
+            setEntries((prev) =>
+              prev.map((e) => (e.id === entry.id ? entry : e))
+            );
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "financial_entries" },
+        ({ old: row }) => {
+          setEntries((prev) => prev.filter((e) => e.id !== (row as { id: string }).id));
+        }
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [fetchEntries, year, month]);
 
-  return { entries, loading, error, refetch: fetchEntries };
+    return () => { supabase.removeChannel(channel); };
+  }, [year, month, firstDay, lastDay]);
+
+  return { entries, loading, error };
 }
 
 interface UseMonthlyNoteReturn {
