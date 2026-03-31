@@ -1,11 +1,37 @@
-import { Wallet, Plus } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { MonthNavigation } from "@/components/financeiro/month-navigation";
+import { SummaryCards } from "@/components/financeiro/summary-cards";
+import { MonthlyNote } from "@/components/financeiro/monthly-note";
+import { useMonthlyEntries } from "@/hooks/use-financial";
+
+function FinanceiroContent({ year, month }: { year: number; month: number }) {
+  const { entries, loading } = useMonthlyEntries(year, month);
+
+  return (
+    <div className="space-y-6">
+      <SummaryCards entries={entries} loading={loading} />
+      <MonthlyNote year={year} month={month} />
+    </div>
+  );
+}
 
 export default function FinanceiroPage() {
+  const now = new Date();
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth() + 1);
+
+  function handleMonthChange(y: number, m: number) {
+    setYear(y);
+    setMonth(m);
+  }
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header da página */}
+    <div className="max-w-5xl mx-auto space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-foreground">Financeiro</h2>
@@ -19,21 +45,11 @@ export default function FinanceiroPage() {
         </Button>
       </div>
 
-      {/* Estado vazio — módulo em construção */}
-      <Card className="border-dashed border-border/80">
-        <CardContent className="flex flex-col items-center justify-center py-16 text-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center">
-            <Wallet className="w-7 h-7 text-emerald-400" />
-          </div>
-          <div className="space-y-1">
-            <p className="font-medium text-foreground">Módulo em construção</p>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              Em breve você poderá registrar contas, acompanhar metas e
-              controlar as finanças da família.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Navegação de mês */}
+      <MonthNavigation year={year} month={month} onChange={handleMonthChange} />
+
+      {/* Conteúdo do mês */}
+      <FinanceiroContent year={year} month={month} />
     </div>
   );
 }
