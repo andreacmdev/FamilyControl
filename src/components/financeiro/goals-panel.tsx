@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, CheckCircle2, Circle, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -52,7 +53,7 @@ function GoalCard({ goal }: { goal: FinancialGoal }) {
         {/* Ações */}
         <div className="flex items-center gap-1 shrink-0">
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
-            <DialogTrigger className="inline-flex items-center justify-center size-7 rounded-md hover:bg-accent transition-colors">
+            <DialogTrigger render={<Button variant="ghost" size="icon" className="size-7" />}>
               <Pencil className="size-3.5" />
             </DialogTrigger>
             <DialogContent>
@@ -64,7 +65,7 @@ function GoalCard({ goal }: { goal: FinancialGoal }) {
           </Dialog>
 
           <AlertDialog>
-            <AlertDialogTrigger className="inline-flex items-center justify-center size-7 rounded-md hover:bg-accent text-destructive transition-colors">
+            <AlertDialogTrigger render={<Button variant="ghost" size="icon" className="size-7 text-destructive hover:text-destructive" />}>
               <Trash2 className="size-3.5" />
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -131,7 +132,7 @@ export function GoalsPanel() {
         </div>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger className="inline-flex items-center justify-center size-7 rounded-md hover:bg-accent transition-colors">
+          <DialogTrigger render={<Button variant="ghost" size="icon" className="size-7" />}>
             <Plus className="size-4" />
           </DialogTrigger>
           <DialogContent>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
@@ -52,7 +53,7 @@ function MemberCard({ member }: { member: FamilyMember }) {
       {/* Ações — aparecem no hover */}
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogTrigger className="inline-flex items-center justify-center size-7 rounded-md hover:bg-accent transition-colors">
+          <DialogTrigger render={<Button variant="ghost" size="icon" className="size-7" />}>
             <Pencil className="size-3.5" />
           </DialogTrigger>
           <DialogContent>
@@ -64,7 +65,7 @@ function MemberCard({ member }: { member: FamilyMember }) {
         </Dialog>
 
         <AlertDialog>
-          <AlertDialogTrigger className="inline-flex items-center justify-center size-7 rounded-md hover:bg-accent text-destructive transition-colors">
+          <AlertDialogTrigger render={<Button variant="ghost" size="icon" className="size-7 text-destructive hover:text-destructive" />}>
             <Trash2 className="size-3.5" />
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -107,7 +108,7 @@ export function MembersPanel() {
         </div>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+          <DialogTrigger render={<Button size="sm" />}>
             <Plus className="size-3.5" />
             Adicionar
           </DialogTrigger>
