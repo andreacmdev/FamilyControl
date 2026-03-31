@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CATEGORY_CONFIG, STATUS_CONFIG, formatCurrency, formatShortDate } from "@/lib/financeiro";
+import { getCategoryConfig, STATUS_CONFIG, formatCurrency, formatShortDate } from "@/lib/financeiro";
 import { deleteEntry, toggleEntryStatus } from "@/lib/actions/financeiro";
 import { EntryDialog } from "./entry-dialog";
 import type { FinancialEntry, EntryType } from "@/types/database";
@@ -97,7 +97,7 @@ export function EntriesPanel({ type, entries, loading, defaultDueDate }: Entries
 function EntryRow({ entry, onEdit }: { entry: FinancialEntry; onEdit: () => void }) {
   const [toggling, setToggling] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const cat = CATEGORY_CONFIG[entry.category];
+  const cat = getCategoryConfig(entry.category, entry.entry_type);
   const statusCfg = STATUS_CONFIG[entry.status];
   const isPago = entry.status === "pago";
 

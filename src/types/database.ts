@@ -94,7 +94,8 @@ export type EntryType = "receita" | "despesa";
 
 export type EntryStatus = "pendente" | "pago" | "cancelado";
 
-export type FinancialCategory =
+// Categorias de despesa
+export type DespesaCategory =
   | "casa"
   | "saude"
   | "transporte"
@@ -105,6 +106,17 @@ export type FinancialCategory =
   | "investimento"
   | "meta"
   | "outros";
+
+// Categorias de receita
+export type ReceitaCategory =
+  | "salario"
+  | "freelance"
+  | "aluguel"
+  | "bonus"
+  | "rendimento"
+  | "outros";
+
+export type FinancialCategory = DespesaCategory | ReceitaCategory;
 
 export interface FinancialEntry {
   id: string;
