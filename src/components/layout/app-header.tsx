@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/": { title: "Início", subtitle: "Bom ver você por aqui" },
   "/agenda": { title: "Agenda", subtitle: "Nossos compromissos" },
-  "/financeiro": { title: "Financeiro", subtitle: "Cuidando das finanças da família" },
+  "/financeiro": { title: "Financeiro", subtitle: "Cuidando das finanças da família Machado" },
   "/configuracoes": { title: "Configurações", subtitle: "Ajustes do sistema" },
 };
 

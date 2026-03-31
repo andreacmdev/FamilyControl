@@ -13,36 +13,42 @@ export interface Database {
         Row: FamilyMember;
         Insert: Omit<FamilyMember, "id" | "created_at">;
         Update: Partial<Omit<FamilyMember, "id" | "created_at">>;
+        Relationships: [];
       };
       agenda_events: {
         Row: AgendaEvent;
         Insert: Omit<AgendaEvent, "id" | "created_at" | "updated_at">;
         Update: Partial<Omit<AgendaEvent, "id" | "created_at">>;
+        Relationships: [];
       };
       financial_entries: {
         Row: FinancialEntry;
         Insert: Omit<FinancialEntry, "id" | "created_at" | "updated_at">;
         Update: Partial<Omit<FinancialEntry, "id" | "created_at">>;
+        Relationships: [];
       };
       financial_goals: {
         Row: FinancialGoal;
         Insert: Omit<FinancialGoal, "id" | "created_at" | "updated_at">;
         Update: Partial<Omit<FinancialGoal, "id" | "created_at">>;
+        Relationships: [];
       };
       monthly_notes: {
         Row: MonthlyNote;
         Insert: Omit<MonthlyNote, "id" | "created_at" | "updated_at">;
         Update: Partial<Omit<MonthlyNote, "id" | "created_at">>;
+        Relationships: [];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Views: Record<string, unknown>;
+    Functions: Record<string, unknown>;
     Enums: {
       agenda_category: AgendaCategory;
       financial_category: FinancialCategory;
       entry_type: EntryType;
       entry_status: EntryStatus;
     };
+    CompositeTypes: Record<string, unknown>;
   };
 }
 

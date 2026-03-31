@@ -3,30 +3,29 @@
 import { useState, useMemo } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAgendaEvents } from "@/hooks/use-agenda-events";
-import {
-  CATEGORY_CONFIG,
-  formatEventTime,
-  isToday,
-} from "@/lib/agenda";
+import { CATEGORY_CONFIG, formatEventTime, isToday } from "@/lib/agenda";
+import { deleteEvent } from "@/lib/actions/agenda";
+import { EventDialog } from "./event-dialog";
 import type { AgendaEvent } from "@/types/database";
 import type { DayButtonProps } from "react-day-picker";
 import { ptBR } from "date-fns/locale";
-import { Clock } from "lucide-react";
+import { Clock, Pencil, Trash2 } from "lucide-react";
 
 export function AgendaCalendar() {
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<AgendaEvent | undefined>();
 
-  const { events, loading } = useAgendaEvents({ month: currentMonth });
+  const { events, loading, refetch } = useAgendaEvents({ month: currentMonth });
 
-  /** Conjunto de dias que têm eventos (formato "YYYY-MM-DD") */
   const eventDays = useMemo(() => {
     return new Set(events.map((e) => e.event_date));
   }, [events]);
 
-  /** Eventos do dia selecionado */
   const selectedDateStr = selectedDate
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
     : null;
@@ -35,6 +34,16 @@ export function AgendaCalendar() {
     if (!selectedDateStr) return [];
     return events.filter((e) => e.event_date === selectedDateStr);
   }, [events, selectedDateStr]);
+
+  function handleEdit(event: AgendaEvent) {
+    setEditingEvent(event);
+    setDialogOpen(true);
+  }
+
+  function handleDialogClose(open: boolean) {
+    setDialogOpen(open);
+    if (!open) setEditingEvent(undefined);
+  }
 
   return (
     <div className="space-y-4">
@@ -48,7 +57,8 @@ export function AgendaCalendar() {
           onMonthChange={setCurrentMonth}
           locale={ptBR}
           classNames={{
-            day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full",
+            day_selected:
+              "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full",
             day_today: "font-semibold text-primary",
           }}
           components={{
@@ -74,7 +84,11 @@ export function AgendaCalendar() {
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1">
             {selectedDateStr && isToday(selectedDateStr)
               ? "Hoje"
-              : selectedDate.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
+              : selectedDate.toLocaleDateString("pt-BR", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}
           </p>
 
           {loading ? (
@@ -89,27 +103,77 @@ export function AgendaCalendar() {
           ) : (
             <div className="space-y-2">
               {selectedEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onEdit={() => handleEdit(event)}
+                  onDelete={refetch}
+                />
               ))}
             </div>
           )}
         </div>
       )}
+
+      <EventDialog
+        open={dialogOpen}
+        onOpenChange={handleDialogClose}
+        event={editingEvent}
+        defaultDate={selectedDateStr ?? undefined}
+        onSuccess={refetch}
+      />
     </div>
   );
 }
 
-function EventCard({ event }: { event: AgendaEvent }) {
+function EventCard({
+  event,
+  onEdit,
+  onDelete,
+}: {
+  event: AgendaEvent;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const cat = CATEGORY_CONFIG[event.category];
   const time = formatEventTime(event.event_time);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!confirm(`Excluir "${event.title}"?`)) return;
+    setDeleting(true);
+    try {
+      await deleteEvent(event.id);
+      onDelete();
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
-    <div className="rounded-xl border border-border/60 bg-card p-3 space-y-1.5 hover:shadow-sm transition-shadow">
+    <div className="rounded-xl border border-border/60 bg-card p-3 space-y-1.5 hover:shadow-sm transition-shadow group">
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm font-medium text-foreground leading-snug">{event.title}</p>
-        <Badge className={`text-xs shrink-0 ${cat.color} border-0`}>
-          {cat.label}
-        </Badge>
+        <div className="flex items-center gap-1 shrink-0">
+          <Badge className={`text-xs ${cat.color} border-0`}>{cat.label}</Badge>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={onEdit}
+          >
+            <Pencil className="w-3 h-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
       </div>
       {time && (
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -123,4 +187,3 @@ function EventCard({ event }: { event: AgendaEvent }) {
     </div>
   );
 }
-

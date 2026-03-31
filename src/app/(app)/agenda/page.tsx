@@ -1,9 +1,15 @@
+"use client";
+
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgendaCalendar } from "@/components/agenda/agenda-calendar";
 import { UpcomingEvents } from "@/components/agenda/upcoming-events";
+import { EventDialog } from "@/components/agenda/event-dialog";
 
 export default function AgendaPage() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
@@ -14,7 +20,7 @@ export default function AgendaPage() {
             Eventos e compromissos da família
           </p>
         </div>
-        <Button size="sm" className="gap-1.5" disabled>
+        <Button size="sm" className="gap-1.5" onClick={() => setDialogOpen(true)}>
           <Plus className="w-4 h-4" />
           Novo evento
         </Button>
@@ -25,6 +31,12 @@ export default function AgendaPage() {
         <AgendaCalendar />
         <UpcomingEvents />
       </div>
+
+      {/* Modal global da página (para o botão do header) */}
+      <EventDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </div>
   );
 }

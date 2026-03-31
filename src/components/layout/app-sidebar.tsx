@@ -49,7 +49,7 @@ export function AppSidebar() {
             F
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold text-foreground">Família</span>
+            <span className="text-sm font-semibold text-foreground">Família Machado</span>
             <span className="text-xs text-muted-foreground">Nosso espaço</span>
           </div>
         </div>
@@ -85,7 +85,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="px-4 pb-4">
         <p className="text-xs text-muted-foreground text-center">
-          feito com carinho 🤍
+          feito com carinho pelo Papai Dedev 🤍
         </p>
       </SidebarFooter>
     </Sidebar>

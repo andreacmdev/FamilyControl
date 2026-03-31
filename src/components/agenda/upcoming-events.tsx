@@ -1,18 +1,30 @@
 "use client";
 
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUpcomingEvents } from "@/hooks/use-agenda-events";
-import {
-  CATEGORY_CONFIG,
-  formatEventDate,
-  formatEventTime,
-  isToday,
-} from "@/lib/agenda";
-import { CalendarDays, Clock } from "lucide-react";
+import { CATEGORY_CONFIG, formatEventDate, formatEventTime, isToday } from "@/lib/agenda";
+import { deleteEvent } from "@/lib/actions/agenda";
+import { EventDialog } from "./event-dialog";
+import type { AgendaEvent } from "@/types/database";
+import { CalendarDays, Clock, Pencil, Trash2 } from "lucide-react";
 
 export function UpcomingEvents() {
-  const { events, loading } = useUpcomingEvents(8);
+  const { events, loading, refetch } = useUpcomingEvents(8);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<AgendaEvent | undefined>();
+
+  function handleEdit(event: AgendaEvent) {
+    setEditingEvent(event);
+    setDialogOpen(true);
+  }
+
+  function handleDialogClose(open: boolean) {
+    setDialogOpen(open);
+    if (!open) setEditingEvent(undefined);
+  }
 
   return (
     <div className="space-y-3">
@@ -35,44 +47,92 @@ export function UpcomingEvents() {
         </div>
       ) : (
         <div className="space-y-2">
-          {events.map((event) => {
-            const cat = CATEGORY_CONFIG[event.category];
-            const time = formatEventTime(event.event_time);
-            const today = isToday(event.event_date);
-
-            return (
-              <div
-                key={event.id}
-                className="rounded-xl border border-border/60 bg-card p-3 space-y-1 hover:shadow-sm transition-shadow"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${cat.dot}`} />
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {event.title}
-                    </p>
-                  </div>
-                  <Badge className={`text-xs shrink-0 ${cat.color} border-0`}>
-                    {cat.label}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center gap-3 pl-4 text-xs text-muted-foreground">
-                  <span className={today ? "text-primary font-medium" : ""}>
-                    {today ? "Hoje" : formatEventDate(event.event_date)}
-                  </span>
-                  {time && (
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {time}
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {events.map((event) => (
+            <UpcomingEventCard
+              key={event.id}
+              event={event}
+              onEdit={() => handleEdit(event)}
+              onDelete={refetch}
+            />
+          ))}
         </div>
       )}
+
+      <EventDialog
+        open={dialogOpen}
+        onOpenChange={handleDialogClose}
+        event={editingEvent}
+        onSuccess={refetch}
+      />
+    </div>
+  );
+}
+
+function UpcomingEventCard({
+  event,
+  onEdit,
+  onDelete,
+}: {
+  event: AgendaEvent;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const cat = CATEGORY_CONFIG[event.category];
+  const time = formatEventTime(event.event_time);
+  const today = isToday(event.event_date);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!confirm(`Excluir "${event.title}"?`)) return;
+    setDeleting(true);
+    try {
+      await deleteEvent(event.id);
+      onDelete();
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-border/60 bg-card p-3 space-y-1 hover:shadow-sm transition-shadow group">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className={`w-2 h-2 rounded-full shrink-0 ${cat.dot}`} />
+          <p className="text-sm font-medium text-foreground truncate">{event.title}</p>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <Badge className={`text-xs ${cat.color} border-0`}>{cat.label}</Badge>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={onEdit}
+          >
+            <Pencil className="w-3 h-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 pl-4 text-xs text-muted-foreground">
+        <span className={today ? "text-primary font-medium" : ""}>
+          {today ? "Hoje" : formatEventDate(event.event_date)}
+        </span>
+        {time && (
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {time}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
