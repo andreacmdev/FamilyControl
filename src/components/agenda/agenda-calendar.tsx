@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -62,16 +62,16 @@ export function AgendaCalendar() {
             day_today: "font-semibold text-primary",
           }}
           components={{
-            DayButton: ({ day, modifiers, ...props }: DayButtonProps) => {
+            DayButton: ({ day, modifiers, children, ...props }: DayButtonProps) => {
               const str = `${day.date.getFullYear()}-${String(day.date.getMonth() + 1).padStart(2, "0")}-${String(day.date.getDate()).padStart(2, "0")}`;
               const hasEvents = eventDays.has(str);
               return (
-                <button {...props}>
-                  <span>{day.date.getDate()}</span>
+                <CalendarDayButton day={day} modifiers={modifiers} locale={ptBR} {...props}>
+                  {children}
                   {hasEvents && (
-                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                   )}
-                </button>
+                </CalendarDayButton>
               );
             },
           }}
