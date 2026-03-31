@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { AgendaCalendar } from "@/components/agenda/agenda-calendar";
 import { UpcomingEvents } from "@/components/agenda/upcoming-events";
 import { EventDialog } from "@/components/agenda/event-dialog";
+import { AgendaFiltersBar, EMPTY_FILTERS, type AgendaFilters } from "@/components/agenda/agenda-filters";
 
 export default function AgendaPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [filters, setFilters] = useState<AgendaFilters>(EMPTY_FILTERS);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -26,17 +28,16 @@ export default function AgendaPage() {
         </Button>
       </div>
 
+      {/* Filtros */}
+      <AgendaFiltersBar filters={filters} onChange={setFilters} />
+
       {/* Layout: calendário + próximos eventos */}
       <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-        <AgendaCalendar />
-        <UpcomingEvents />
+        <AgendaCalendar filters={filters} />
+        <UpcomingEvents filters={filters} />
       </div>
 
-      {/* Modal global da página (para o botão do header) */}
-      <EventDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <EventDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }

@@ -9,12 +9,18 @@ import { useAgendaEvents } from "@/hooks/use-agenda-events";
 import { CATEGORY_CONFIG, formatEventTime, isToday } from "@/lib/agenda";
 import { deleteEvent } from "@/lib/actions/agenda";
 import { EventDialog } from "./event-dialog";
+import type { AgendaFilters } from "./agenda-filters";
+import { isFiltersActive } from "./agenda-filters";
 import type { AgendaEvent } from "@/types/database";
 import type { DayButtonProps } from "react-day-picker";
 import { ptBR } from "date-fns/locale";
 import { Clock, Pencil, Trash2 } from "lucide-react";
 
-export function AgendaCalendar() {
+interface AgendaCalendarProps {
+  filters?: AgendaFilters;
+}
+
+export function AgendaCalendar({ filters }: AgendaCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -22,9 +28,16 @@ export function AgendaCalendar() {
 
   const { events, loading, refetch } = useAgendaEvents({ month: currentMonth });
 
+  const filteredEvents = useMemo(() => {
+    if (!filters || !isFiltersActive(filters)) return events;
+    return events.filter((e) =>
+      filters.categories.length === 0 || filters.categories.includes(e.category)
+    );
+  }, [events, filters]);
+
   const eventDays = useMemo(() => {
-    return new Set(events.map((e) => e.event_date));
-  }, [events]);
+    return new Set(filteredEvents.map((e) => e.event_date));
+  }, [filteredEvents]);
 
   const selectedDateStr = selectedDate
     ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
@@ -32,8 +45,8 @@ export function AgendaCalendar() {
 
   const selectedEvents = useMemo(() => {
     if (!selectedDateStr) return [];
-    return events.filter((e) => e.event_date === selectedDateStr);
-  }, [events, selectedDateStr]);
+    return filteredEvents.filter((e) => e.event_date === selectedDateStr);
+  }, [filteredEvents, selectedDateStr]);
 
   function handleEdit(event: AgendaEvent) {
     setEditingEvent(event);

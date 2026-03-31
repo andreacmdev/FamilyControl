@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,10 +8,16 @@ import { useUpcomingEvents } from "@/hooks/use-agenda-events";
 import { CATEGORY_CONFIG, formatEventDate, formatEventTime, isToday } from "@/lib/agenda";
 import { deleteEvent } from "@/lib/actions/agenda";
 import { EventDialog } from "./event-dialog";
+import type { AgendaFilters } from "./agenda-filters";
+import { isFiltersActive } from "./agenda-filters";
 import type { AgendaEvent } from "@/types/database";
 import { CalendarDays, Clock, Pencil, Trash2 } from "lucide-react";
 
-export function UpcomingEvents() {
+interface UpcomingEventsProps {
+  filters?: AgendaFilters;
+}
+
+export function UpcomingEvents({ filters }: UpcomingEventsProps) {
   const { events, loading, refetch } = useUpcomingEvents(8);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<AgendaEvent | undefined>();
@@ -26,11 +32,25 @@ export function UpcomingEvents() {
     if (!open) setEditingEvent(undefined);
   }
 
+  const filteredEvents = useMemo(() => {
+    if (!filters || !isFiltersActive(filters)) return events;
+    return events.filter((e) =>
+      filters.categories.length === 0 || filters.categories.includes(e.category)
+    );
+  }, [events, filters]);
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <CalendarDays className="w-4 h-4 text-muted-foreground" />
-        <h3 className="text-sm font-semibold text-foreground">Próximos eventos</h3>
+        <h3 className="text-sm font-semibold text-foreground">
+          Próximos eventos
+          {filters && isFiltersActive(filters) && (
+            <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+              ({filteredEvents.length})
+            </span>
+          )}
+        </h3>
       </div>
 
       {loading ? (
@@ -39,15 +59,17 @@ export function UpcomingEvents() {
             <Skeleton key={i} className="h-[68px] w-full rounded-xl" />
           ))}
         </div>
-      ) : events.length === 0 ? (
+      ) : filteredEvents.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border/80 p-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Nenhum evento agendado por enquanto.
+            {filters && isFiltersActive(filters)
+              ? "Nenhum evento encontrado com esses filtros."
+              : "Nenhum evento agendado por enquanto."}
           </p>
         </div>
       ) : (
         <div className="space-y-2">
-          {events.map((event) => (
+          {filteredEvents.map((event) => (
             <UpcomingEventCard
               key={event.id}
               event={event}
