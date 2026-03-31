@@ -1,19 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { MonthNavigation } from "@/components/financeiro/month-navigation";
 import { SummaryCards } from "@/components/financeiro/summary-cards";
 import { MonthlyNote } from "@/components/financeiro/monthly-note";
+import { EntriesPanel } from "@/components/financeiro/entries-panel";
 import { useMonthlyEntries } from "@/hooks/use-financial";
 
 function FinanceiroContent({ year, month }: { year: number; month: number }) {
   const { entries, loading } = useMonthlyEntries(year, month);
 
+  const defaultDueDate = `${year}-${String(month).padStart(2, "0")}-01`;
+
   return (
     <div className="space-y-6">
+      {/* Cards de resumo */}
       <SummaryCards entries={entries} loading={loading} />
+
+      {/* Painéis de lançamentos */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <EntriesPanel
+          type="receita"
+          entries={entries}
+          loading={loading}
+          defaultDueDate={defaultDueDate}
+        />
+        <EntriesPanel
+          type="despesa"
+          entries={entries}
+          loading={loading}
+          defaultDueDate={defaultDueDate}
+        />
+      </div>
+
+      {/* Observações do mês */}
       <MonthlyNote year={year} month={month} />
     </div>
   );
@@ -23,11 +43,6 @@ export default function FinanceiroPage() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
-
-  function handleMonthChange(y: number, m: number) {
-    setYear(y);
-    setMonth(m);
-  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -39,16 +54,9 @@ export default function FinanceiroPage() {
             Controle de receitas, despesas e metas
           </p>
         </div>
-        <Button size="sm" className="gap-1.5" disabled>
-          <Plus className="w-4 h-4" />
-          Novo lançamento
-        </Button>
+        <MonthNavigation year={year} month={month} onChange={(y, m) => { setYear(y); setMonth(m); }} />
       </div>
 
-      {/* Navegação de mês */}
-      <MonthNavigation year={year} month={month} onChange={handleMonthChange} />
-
-      {/* Conteúdo do mês */}
       <FinanceiroContent year={year} month={month} />
     </div>
   );
