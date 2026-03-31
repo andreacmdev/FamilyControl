@@ -5,6 +5,7 @@ import { MonthNavigation } from "@/components/financeiro/month-navigation";
 import { SummaryCards } from "@/components/financeiro/summary-cards";
 import { MonthlyNote } from "@/components/financeiro/monthly-note";
 import { EntriesPanel } from "@/components/financeiro/entries-panel";
+import { GoalsPanel } from "@/components/financeiro/goals-panel";
 import { useMonthlyEntries } from "@/hooks/use-financial";
 
 function FinanceiroContent({ year, month }: { year: number; month: number }) {
@@ -31,6 +32,11 @@ function FinanceiroContent({ year, month }: { year: number; month: number }) {
           loading={loading}
           defaultDueDate={defaultDueDate}
         />
+      </div>
+
+      {/* Metas financeiras */}
+      <div className="rounded-xl border bg-card p-4">
+        <GoalsPanel />
       </div>
 
       {/* Observações do mês */}
