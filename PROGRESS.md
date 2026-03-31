@@ -39,10 +39,10 @@
 - [x] Cores por categoria
 - [x] Integração com Supabase (leitura)
 
-### 3b — Cadastro / edição
-- [ ] Modal de cadastro de evento
-- [ ] Edição de evento
-- [ ] Exclusão de evento
+### 3b — Cadastro / edição ✅
+- [x] Modal de cadastro de evento
+- [x] Edição de evento
+- [x] Exclusão de evento
 
 ### 3c — Filtros
 - [ ] Filtro por categoria
