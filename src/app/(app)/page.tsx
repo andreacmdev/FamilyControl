@@ -5,7 +5,7 @@ import Link from "next/link";
 const modules = [
   {
     title: "Agenda",
-    description: "Próximos compromissos e eventos da família",
+    description: "Próximos compromissos e eventos da família Machado",
     href: "/agenda",
     icon: CalendarDays,
     color: "text-blue-500",
@@ -13,7 +13,7 @@ const modules = [
   },
   {
     title: "Financeiro",
-    description: "Contas, metas e controle mensal",
+    description: "Contas, metas e controle mensal da família Machado",
     href: "/financeiro",
     icon: Wallet,
     color: "text-emerald-500",
@@ -29,11 +29,11 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 text-primary" />
           <h1 className="text-2xl font-semibold text-foreground">
-            Olá, família!
+            Olá, família Machado!
           </h1>
         </div>
         <p className="text-muted-foreground text-sm">
-          Este é o nosso espaço. Organizado com carinho para facilitar o dia a dia.
+          Este é o nosso espaço. Organizado com carinho para facilitar o dia a dia da nossa Família.
         </p>
       </div>
 
