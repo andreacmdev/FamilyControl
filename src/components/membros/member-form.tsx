@@ -23,9 +23,10 @@ const MEMBER_COLORS = [
 ];
 
 const schema = z.object({
-  name:     z.string().min(1, "Nome obrigatório"),
-  nickname: z.string().optional(),
-  color:    z.string().optional(),
+  name:       z.string().min(1, "Nome obrigatório"),
+  nickname:   z.string().optional(),
+  color:      z.string().optional(),
+  birth_date: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -41,9 +42,10 @@ export function MemberForm({ member, onSuccess }: MemberFormProps) {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name:     member?.name ?? "",
-      nickname: member?.nickname ?? "",
-      color:    member?.color ?? MEMBER_COLORS[0].value,
+      name:       member?.name ?? "",
+      nickname:   member?.nickname ?? "",
+      color:      member?.color ?? MEMBER_COLORS[0].value,
+      birth_date: member?.birth_date ?? "",
     },
   });
 
@@ -53,9 +55,10 @@ export function MemberForm({ member, onSuccess }: MemberFormProps) {
     setSubmitting(true);
     try {
       const payload: MemberPayload = {
-        name:     values.name,
-        nickname: values.nickname,
-        color:    values.color,
+        name:       values.name,
+        nickname:   values.nickname,
+        color:      values.color,
+        birth_date: values.birth_date,
       };
       if (member) await updateMember(member.id, payload);
       else await createMember(payload);
@@ -98,6 +101,12 @@ export function MemberForm({ member, onSuccess }: MemberFormProps) {
       <div className="space-y-1.5">
         <Label htmlFor="nickname">Apelido</Label>
         <Input id="nickname" placeholder="Ex: Mãe, Pai, Filha..." {...register("nickname")} />
+      </div>
+
+      {/* Data de nascimento */}
+      <div className="space-y-1.5">
+        <Label htmlFor="birth_date">Data de nascimento</Label>
+        <Input id="birth_date" type="date" {...register("birth_date")} />
       </div>
 
       {/* Cor */}

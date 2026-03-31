@@ -60,6 +60,7 @@ export interface FamilyMember {
   nickname: string | null;
   avatar_url: string | null;
   color: string | null;
+  birth_date: string | null;
   created_at: string;
 }
 
