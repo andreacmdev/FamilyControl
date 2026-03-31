@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { AgendaEvent } from "@/types/database";
 
 interface UseAgendaEventsOptions {
-  /** Se fornecido, filtra apenas eventos desse mês/ano */
   month?: Date;
 }
 
@@ -20,9 +19,11 @@ export function useAgendaEvents({ month }: UseAgendaEventsOptions = {}): UseAgen
   const [events, setEvents] = useState<AgendaEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const initialLoad = useRef(true);
 
   const fetchEvents = useCallback(async () => {
-    setLoading(true);
+    // Só mostra skeleton na primeira carga
+    if (initialLoad.current) setLoading(true);
     setError(null);
 
     const supabase = createClient();
@@ -50,23 +51,41 @@ export function useAgendaEvents({ month }: UseAgendaEventsOptions = {}): UseAgen
     }
 
     setLoading(false);
+    initialLoad.current = false;
   }, [month]);
 
+  // Carga inicial
   useEffect(() => {
     fetchEvents();
+  }, [fetchEvents]);
+
+  // Realtime: atualiza automaticamente quando o banco muda
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("agenda_events_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "agenda_events" },
+        () => { fetchEvents(); }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [fetchEvents]);
 
   return { events, loading, error, refetch: fetchEvents };
 }
 
-/** Retorna eventos a partir de hoje (próximos N dias) */
+/** Retorna eventos a partir de hoje */
 export function useUpcomingEvents(limit = 8): UseAgendaEventsReturn {
   const [events, setEvents] = useState<AgendaEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const initialLoad = useRef(true);
 
   const fetchEvents = useCallback(async () => {
-    setLoading(true);
+    if (initialLoad.current) setLoading(true);
     setError(null);
 
     const supabase = createClient();
@@ -87,10 +106,27 @@ export function useUpcomingEvents(limit = 8): UseAgendaEventsReturn {
     }
 
     setLoading(false);
+    initialLoad.current = false;
   }, [limit]);
 
+  // Carga inicial
   useEffect(() => {
     fetchEvents();
+  }, [fetchEvents]);
+
+  // Realtime: canal separado para a lista de próximos eventos
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("upcoming_events_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "agenda_events" },
+        () => { fetchEvents(); }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [fetchEvents]);
 
   return { events, loading, error, refetch: fetchEvents };
