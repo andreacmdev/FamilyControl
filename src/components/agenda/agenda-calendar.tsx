@@ -57,6 +57,9 @@ export function AgendaCalendar() {
           onMonthChange={setCurrentMonth}
           locale={ptBR}
           classNames={{
+            root: "w-full",
+            month: "w-full",
+            month_grid: "w-full",
             day_selected:
               "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full",
             day_today: "font-semibold text-primary",
