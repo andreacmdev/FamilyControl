@@ -18,7 +18,7 @@ import { formatCurrency } from "@/lib/financeiro";
 import { useGoals } from "@/hooks/use-goals";
 import type { FinancialGoal } from "@/types/database";
 
-function GoalCard({ goal }: { goal: FinancialGoal }) {
+function GoalCard({ goal, onRefetch }: { goal: FinancialGoal; onRefetch: () => void }) {
   const [editOpen, setEditOpen] = useState(false);
   const pct = Math.min(100, Math.round((goal.current_amount / goal.target_amount) * 100));
   const remaining = Math.max(0, goal.target_amount - goal.current_amount);
@@ -32,7 +32,7 @@ function GoalCard({ goal }: { goal: FinancialGoal }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-start gap-2 min-w-0">
           <button
-            onClick={() => toggleGoalCompleted(goal.id, goal.is_completed)}
+            onClick={async () => { await toggleGoalCompleted(goal.id, goal.is_completed); onRefetch(); }}
             className="mt-0.5 shrink-0 text-muted-foreground hover:text-primary transition-colors"
             title={goal.is_completed ? "Marcar como pendente" : "Marcar como concluída"}
           >
@@ -60,7 +60,7 @@ function GoalCard({ goal }: { goal: FinancialGoal }) {
               <DialogHeader>
                 <DialogTitle>Editar meta</DialogTitle>
               </DialogHeader>
-              <GoalForm goal={goal} onSuccess={() => setEditOpen(false)} />
+              <GoalForm goal={goal} onSuccess={() => { setEditOpen(false); onRefetch(); }} />
             </DialogContent>
           </Dialog>
 
@@ -79,7 +79,7 @@ function GoalCard({ goal }: { goal: FinancialGoal }) {
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-destructive hover:bg-destructive/90"
-                  onClick={() => deleteGoal(goal.id)}
+                  onClick={async () => { await deleteGoal(goal.id); onRefetch(); }}
                 >
                   Excluir
                 </AlertDialogAction>
@@ -111,7 +111,7 @@ function GoalCard({ goal }: { goal: FinancialGoal }) {
 }
 
 export function GoalsPanel() {
-  const { goals, loading } = useGoals();
+  const { goals, loading, refetch } = useGoals();
   const [addOpen, setAddOpen] = useState(false);
 
   const active    = goals.filter((g) => !g.is_completed);
@@ -139,7 +139,7 @@ export function GoalsPanel() {
             <DialogHeader>
               <DialogTitle>Nova meta</DialogTitle>
             </DialogHeader>
-            <GoalForm onSuccess={() => setAddOpen(false)} />
+            <GoalForm onSuccess={() => { setAddOpen(false); refetch(); }} />
           </DialogContent>
         </Dialog>
       </div>
@@ -157,11 +157,11 @@ export function GoalsPanel() {
         </div>
       ) : (
         <div className="space-y-3">
-          {active.map((g) => <GoalCard key={g.id} goal={g} />)}
+          {active.map((g) => <GoalCard key={g.id} goal={g} onRefetch={refetch} />)}
           {completed.length > 0 && (
             <>
               {active.length > 0 && <div className="border-t" />}
-              {completed.map((g) => <GoalCard key={g.id} goal={g} />)}
+              {completed.map((g) => <GoalCard key={g.id} goal={g} onRefetch={refetch} />)}
             </>
           )}
         </div>

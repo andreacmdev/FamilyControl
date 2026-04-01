@@ -9,7 +9,7 @@ import { GoalsPanel } from "@/components/financeiro/goals-panel";
 import { useMonthlyEntries } from "@/hooks/use-financial";
 
 function FinanceiroContent({ year, month }: { year: number; month: number }) {
-  const { entries, loading } = useMonthlyEntries(year, month);
+  const { entries, loading, refetch } = useMonthlyEntries(year, month);
 
   const defaultDueDate = `${year}-${String(month).padStart(2, "0")}-01`;
 
@@ -25,12 +25,14 @@ function FinanceiroContent({ year, month }: { year: number; month: number }) {
           entries={entries}
           loading={loading}
           defaultDueDate={defaultDueDate}
+          onRefetch={refetch}
         />
         <EntriesPanel
           type="despesa"
           entries={entries}
           loading={loading}
           defaultDueDate={defaultDueDate}
+          onRefetch={refetch}
         />
       </div>
 

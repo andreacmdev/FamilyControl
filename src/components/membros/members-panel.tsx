@@ -36,7 +36,7 @@ function MemberAvatar({ member, size = "md" }: { member: FamilyMember; size?: "s
   );
 }
 
-function MemberCard({ member }: { member: FamilyMember }) {
+function MemberCard({ member, onRefetch }: { member: FamilyMember; onRefetch: () => void }) {
   const [editOpen, setEditOpen] = useState(false);
 
   return (
@@ -60,7 +60,7 @@ function MemberCard({ member }: { member: FamilyMember }) {
             <DialogHeader>
               <DialogTitle>Editar membro</DialogTitle>
             </DialogHeader>
-            <MemberForm member={member} onSuccess={() => setEditOpen(false)} />
+            <MemberForm member={member} onSuccess={() => { setEditOpen(false); onRefetch(); }} />
           </DialogContent>
         </Dialog>
 
@@ -79,7 +79,7 @@ function MemberCard({ member }: { member: FamilyMember }) {
               <AlertDialogCancel>Cancelar</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive hover:bg-destructive/90"
-                onClick={() => deleteMember(member.id)}
+                onClick={async () => { await deleteMember(member.id); onRefetch(); }}
               >
                 Remover
               </AlertDialogAction>
@@ -92,7 +92,7 @@ function MemberCard({ member }: { member: FamilyMember }) {
 }
 
 export function MembersPanel() {
-  const { members, loading } = useMembers();
+  const { members, loading, refetch } = useMembers();
   const [addOpen, setAddOpen] = useState(false);
 
   return (
@@ -116,7 +116,7 @@ export function MembersPanel() {
             <DialogHeader>
               <DialogTitle>Novo membro</DialogTitle>
             </DialogHeader>
-            <MemberForm onSuccess={() => setAddOpen(false)} />
+            <MemberForm onSuccess={() => { setAddOpen(false); refetch(); }} />
           </DialogContent>
         </Dialog>
       </div>
@@ -134,7 +134,7 @@ export function MembersPanel() {
         </div>
       ) : (
         <div className="space-y-2">
-          {members.map((m) => <MemberCard key={m.id} member={m} />)}
+          {members.map((m) => <MemberCard key={m.id} member={m} onRefetch={refetch} />)}
         </div>
       )}
     </div>

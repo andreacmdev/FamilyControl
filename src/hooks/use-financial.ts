@@ -8,6 +8,7 @@ interface UseMonthlyEntriesReturn {
   entries: FinancialEntry[];
   loading: boolean;
   error: string | null;
+  refetch: () => void;
 }
 
 export function useMonthlyEntries(
@@ -92,7 +93,7 @@ export function useMonthlyEntries(
     return () => { supabase.removeChannel(channel); };
   }, [year, month, firstDay, lastDay]);
 
-  return { entries, loading, error };
+  return { entries, loading, error, refetch: fetchEntries };
 }
 
 interface UseMonthlyNoteReturn {

@@ -15,9 +15,10 @@ interface EntriesPanelProps {
   entries: FinancialEntry[];
   loading: boolean;
   defaultDueDate?: string;
+  onRefetch?: () => void;
 }
 
-export function EntriesPanel({ type, entries, loading, defaultDueDate }: EntriesPanelProps) {
+export function EntriesPanel({ type, entries, loading, defaultDueDate, onRefetch }: EntriesPanelProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<FinancialEntry | undefined>();
 
@@ -78,6 +79,7 @@ export function EntriesPanel({ type, entries, loading, defaultDueDate }: Entries
               key={entry.id}
               entry={entry}
               onEdit={() => handleEdit(entry)}
+              onRefetch={onRefetch}
             />
           ))
         )}
@@ -89,12 +91,13 @@ export function EntriesPanel({ type, entries, loading, defaultDueDate }: Entries
         entry={editingEntry}
         defaultType={type}
         defaultDueDate={defaultDueDate}
+        onSuccess={onRefetch}
       />
     </div>
   );
 }
 
-function EntryRow({ entry, onEdit }: { entry: FinancialEntry; onEdit: () => void }) {
+function EntryRow({ entry, onEdit, onRefetch }: { entry: FinancialEntry; onEdit: () => void; onRefetch?: () => void }) {
   const [toggling, setToggling] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const cat = getCategoryConfig(entry.category, entry.entry_type);
@@ -103,15 +106,19 @@ function EntryRow({ entry, onEdit }: { entry: FinancialEntry; onEdit: () => void
 
   async function handleToggle() {
     setToggling(true);
-    try { await toggleEntryStatus(entry.id, entry.status); }
-    finally { setToggling(false); }
+    try {
+      await toggleEntryStatus(entry.id, entry.status);
+      onRefetch?.();
+    } finally { setToggling(false); }
   }
 
   async function handleDelete() {
     if (!confirm(`Excluir "${entry.description}"?`)) return;
     setDeleting(true);
-    try { await deleteEntry(entry.id); }
-    finally { setDeleting(false); }
+    try {
+      await deleteEntry(entry.id);
+      onRefetch?.();
+    } finally { setDeleting(false); }
   }
 
   return (
