@@ -1,7 +1,4 @@
-"use server";
-
-import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 
 export interface GoalPayload {
   title: string;
@@ -12,7 +9,7 @@ export interface GoalPayload {
 }
 
 export async function createGoal(payload: GoalPayload) {
-  const supabase = await createClient();
+  const supabase = createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase as any).from("financial_goals").insert({
     title:          payload.title,
@@ -23,11 +20,10 @@ export async function createGoal(payload: GoalPayload) {
     is_completed:   false,
   });
   if (error) throw new Error(error.message);
-  revalidatePath("/financeiro");
 }
 
 export async function updateGoal(id: string, payload: GoalPayload) {
-  const supabase = await createClient();
+  const supabase = createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase as any)
     .from("financial_goals")
@@ -40,27 +36,24 @@ export async function updateGoal(id: string, payload: GoalPayload) {
     })
     .eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/financeiro");
 }
 
 export async function deleteGoal(id: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase as any)
     .from("financial_goals")
     .delete()
     .eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/financeiro");
 }
 
 export async function toggleGoalCompleted(id: string, current: boolean) {
-  const supabase = await createClient();
+  const supabase = createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase as any)
     .from("financial_goals")
     .update({ is_completed: !current })
     .eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/financeiro");
 }
