@@ -20,17 +20,17 @@
 
 ---
 
-## Etapa 2 — Supabase & Banco de dados 🔄
+## Etapa 2 — Supabase & Banco de dados ✅
 
 - [x] Projeto Supabase criado
 - [x] Variáveis de ambiente configuradas (`.env.local`)
 - [x] Migration SQL executada no Supabase
-- [x] Conexão testada e validada ✅
+- [x] Conexão testada e validada
 - [x] Supabase conectado ao projeto Next.js
 
 ---
 
-## Etapa 3 — Módulo Agenda
+## Etapa 3 — Módulo Agenda ✅
 
 ### 3a — Visualização ✅
 - [x] Calendário mensal visual com pontinhos nos dias com evento
@@ -38,58 +38,74 @@
 - [x] Lista de próximos eventos (a partir de hoje)
 - [x] Cores por categoria
 - [x] Integração com Supabase (leitura)
+- [x] Realtime: atualizações instantâneas sem refresh manual
 
 ### 3b — Cadastro / edição ✅
 - [x] Modal de cadastro de evento
 - [x] Edição de evento
 - [x] Exclusão de evento
 
-### 3c — Filtros
-- [ ] Filtro por categoria
-- [ ] Filtro por responsável
+### 3c — Filtros ✅
+- [x] Filtro por categoria
+- [x] Limpar filtros
 
 ---
 
-## Etapa 4 — Módulo Financeiro
+## Etapa 4 — Módulo Financeiro ✅
 
-- [ ] Visão geral do mês (resumo)
-- [ ] Lista de contas a pagar
-- [ ] Lista de contas a receber
-- [ ] Cadastro de lançamento
-- [ ] Edição e exclusão de lançamento
-- [ ] Controle de dízimo
-- [ ] Metas financeiras
-- [ ] Observações do mês
-- [ ] Valor disponível estimado
-- [ ] Integração completa com Supabase
+### 4a — Visão geral do mês ✅
+- [x] Cards de resumo: total receitas, total despesas, saldo
+- [x] Navegação por mês
+- [x] Observações do mês (auto-save com debounce)
 
----
+### 4b — Lançamentos ✅
+- [x] Painel de receitas e despesas separados
+- [x] Categorias distintas por tipo (receita ≠ despesa)
+  - Receitas: Salário, Freelance, Aluguel, Bônus, Rendimento
+  - Despesas: Casa, Saúde, Transporte, Assinaturas, Igreja, Mercado, Pessoal, Investimento, Meta, Outros
+- [x] Despesas/receitas recorrentes com data fim (gera parcelas mensais automáticas)
+- [x] Toggle pago/pendente com data de pagamento
+- [x] Ícone de recorrente na listagem
+- [x] Realtime delta updates (sem round-trip extra)
 
-## Etapa 5 — Membros da família & Configurações
-
-- [ ] Cadastro de membros
-- [ ] Foto/avatar por membro
-- [ ] Associar eventos a membros
-- [ ] Página de configurações funcional
-
----
-
-## Etapa 6 — Home personalizada
-
-- [ ] Versículos bíblicos rotativos
-- [ ] Aniversários do mês
-- [ ] Próximos eventos em destaque
-- [ ] Resumo financeiro do mês
-- [ ] Identidade visual da família
+### 4c — Metas financeiras ✅
+- [x] Painel de metas com barra de progresso
+- [x] CRUD completo: criar, editar, excluir
+- [x] Marcar meta como concluída (lista separada)
+- [x] Valor acumulado, valor alvo, % de progresso, data alvo
+- [x] Realtime delta updates
 
 ---
 
-## Etapa 7 — Deploy
+## Etapa 5 — Membros da família & Configurações ✅
 
-- [ ] Firebase Hosting configurado
-- [ ] Build de produção validado
-- [ ] Deploy realizado
-- [ ] Domínio configurado (opcional)
+- [x] Cadastro de membros
+- [x] Avatar por iniciais com cor personalizada (9 opções)
+- [x] Campos: nome, apelido, cor, data de nascimento
+- [x] Editar e remover com confirmação
+- [x] Página de configurações funcional
+- [x] Realtime delta updates
+
+---
+
+## Etapa 6 — Home personalizada ✅
+
+- [x] Versículo do dia (rotativo por dia do ano, 14 versículos)
+- [x] Aniversários próximos (próximos 30 dias, oculto se não houver)
+- [x] Próximos eventos em destaque (link para agenda)
+- [x] Resumo financeiro do mês (receitas, despesas, saldo)
+- [x] Campo birth_date adicionado aos membros da família
+
+---
+
+## Etapa 7 — Deploy ✅
+
+- [x] Server Actions convertidas para client-side (static export)
+- [x] Firebase Hosting configurado (`firebase.json` + `.firebaserc`)
+- [x] Build de produção validado (`output: export`)
+- [x] Deploy realizado no Firebase Hosting (plano gratuito)
+- [x] Script de deploy: `npm run deploy`
+- [ ] Domínio personalizado (opcional)
 
 ---
 

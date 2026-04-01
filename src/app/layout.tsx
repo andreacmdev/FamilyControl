@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Família",
-  description: "Nosso espaço familiar",
+  title: "Família Machado",
+  description: "Nosso espaço Gerencial",
 };
 
 export default function RootLayout({
