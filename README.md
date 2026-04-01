@@ -208,8 +208,8 @@ Acesse `http://localhost:3000`.
 ### Realtime
 Todos os módulos usam Supabase Realtime com **delta updates** — cada evento `INSERT`, `UPDATE` e `DELETE` é aplicado diretamente no estado React sem refazer a requisição HTTP. Isso garante atualizações instantâneas em todos os dispositivos abertos.
 
-### Server Actions
-Mutações (`create`, `update`, `delete`) são feitas via Next.js Server Actions com `revalidatePath`. O cast `(supabase as any)` é necessário por incompatibilidade de tipos do `supabase-js v2.101` com o generic `Database` customizado.
+### Mutações client-side
+Mutações (`create`, `update`, `delete`) são feitas diretamente pelo Supabase browser client — sem Server Actions. Após cada mutação, `refetch()` é chamado imediatamente para atualizar o estado local. O Realtime permanece ativo para sincronizar outros dispositivos. O cast `(supabase as any)` é necessário por incompatibilidade de tipos do `supabase-js v2.101` com o generic `Database` customizado.
 
 ### Formulários
 `react-hook-form` + `Zod v4`. Atenção: Zod v4 não suporta `invalid_type_error` — campos numéricos usam `z.string().refine()` com conversão manual em `onSubmit`.
@@ -219,7 +219,17 @@ O projeto usa **Base UI** (não Radix UI). O padrão correto para compor trigger
 
 ---
 
+### Deploy
+
+```bash
+npm run deploy   # build + firebase deploy --only hosting
+```
+
+O app é exportado como estático (`output: export`) para a pasta `out` e publicado no Firebase Hosting gratuito.
+
+---
+
 ## Roadmap
 
-- [ ] Deploy no Firebase Hosting
 - [ ] Integração WhatsApp via Z-API (notificações de eventos e vencimentos)
+- [ ] Domínio personalizado no Firebase Hosting
